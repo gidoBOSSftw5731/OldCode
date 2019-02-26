@@ -1,0 +1,40 @@
+#!/usr/bin/python
+
+import os
+import time
+import picamera
+
+from datetime import datetime
+## Import GPIO library
+import RPi.GPIO as GPIO
+
+## Set basic variables: GPIO pin and file archive location.
+switch1 = 40
+file_location = '/var/tmp/pipicts'
+
+## Use board pin numbering.
+GPIO.setmode(GPIO.BOARD)
+## Setup GPIO Pin 40 to IN
+GPIO.setup(switch1, GPIO.IN)
+## Turn on GPIO pin 40
+GPIO.input(switch1)
+print 'ACTIVATED'
+## Loop watching for switch activity.
+while True:
+  if GPIO.input(switch1):
+    print 'Waiting on switch to open.'
+  else:
+    print 'Switch opened!'
+    time_stamp = datetime.strftime(datetime.now(), '%Y-%m-%d-%H-%M-%S')
+    output_file = os.path.join(file_location, '%s.jpg' % time_stamp)
+    print 'taking picture, stay still...!'
+    with picamera.PiCamera() as camera:
+      camera.resolution = (1024, 1024)
+      camera.rotation = 180
+       ## the file that the picture goes into
+      camera.capture(output_file)
+
+## Reset to start
+GPIO.cleanup() 
+
+
